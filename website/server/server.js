@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
 app.use(express.static('website'))
-const port = 3000
+const port = 8000
 
 //callback to check if the server is working
 const server = app.listen(port, listening)
@@ -32,9 +32,14 @@ app.get('/all', sendData);
 app.post('/data', addData);
 
 function addData (req,res){
-    projectData.push(req.body);
+    projectData = req.body;
+/**/    res.send(req.body);
+    console.log('DATA-ADDED');
+    console.log(projectData);
 };
 
 function sendData (req,res){
+    console.log('DATA-SEND');
+    console.log(projectData);
     res.send(projectData);
 };

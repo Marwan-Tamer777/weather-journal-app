@@ -10,30 +10,21 @@ const content = document.getElementById('content');
 const APIkey = '2541334ceee047e0ef4f56ad571b0505';
 const baseUrl ='https://api.openweathermap.org/data/2.5/weather?zip=';
 const d = new Date();
-const newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
+const newDate = d.getMonth()+'/'+ d.getDate()+'/'+ d.getFullYear();
 
 //EventListener for the generate button to take input
 generate.addEventListener('click', getData);
 
-//fetching data from the openweatherAPI
-const fetchData = async ( url = '' , data = {})=>{
-    const response = await fetch(url);
-    try {
-      const newData = await response.json();
-
-      //in case of a wrong inputted zipcode as the API retuns an empty object not an error
-      if(newData.cod === '404'){
-            alert(` please, make sure that your zip code is an exisitng one.`);
-      } else {
-            console.log(newData);
-            updateUI(newData);
-    }
-    }catch(error) {
-    console.log("error", error);
-    }
+const getWeatherData = async (url = '', data = {})=>{
+  //fetching weather data from openweatherAPI
+  const fullData = await fetch(url);
+  const request = await fullData.json();
+  return request;
 }
+
 //posting data to the local server
 const postData = async ( url = '', data = {})=>{
+//posting the data to our local server
     const res = await fetch(url, {
     method: 'POST',
     credentials: 'same-origin',
@@ -42,22 +33,46 @@ const postData = async ( url = '', data = {})=>{
     },
     body: JSON.stringify(data),
   });
+
   try {
     const newData = await res.json();
-    return newData
+    //in case of a wrong inputted zipcode as the API retuns an empty object not an error
+    if(newData.cod === '404'){
+          alert(` please, make sure that your zip code is an exisitng one.`);
+    } else {
+          updateUI(newData);
+  }
   }catch(error) {
   console.log("error", error);
   }
 }
 
+//fetching data from the local server
+const fetchData = async ( url = '' , data = {})=>{
+    const response = await fetch(url);
+    try {
+      const newData = await response.json();
+/*      console.log(newData);
+      //in case of a wrong inputted zipcode as the API retuns an empty object not an error
+      if(newData.cod === '404'){
+            alert(` please, make sure that your zip code is an exisitng one.`);
+      } else {
+            updateUI(newData);
+    }*/
+    }catch(error) {
+    console.log("error", error);
+    }
+}
+
 //setuo to fecth the data
 function getData(){
   const fullUrl = baseUrl + zip.value + '&appid=' + APIkey;
-  const data = fetchData(fullUrl);
+  getWeatherData(fullUrl).then((data)=>postData('http://localhost:8000/data',data)).then(fetchData('http://localhost:8000/all'));
 }
 
 //updating the UI dynamically
 function updateUI(data){
+  console.log(data);
   name.innerHTML = `Location: ${data.name},${data.sys.country}`;
   temp.innerHTML = `Temperature: ${(data.main.temp - 273.15).toFixed(2)}°C`;
   date.innerHTML = `Date: ${newDate}`;
