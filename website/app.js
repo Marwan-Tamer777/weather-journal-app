@@ -7,10 +7,10 @@ const name = document.getElementById('name');
 const date = document.getElementById('date');
 const temp = document.getElementById('temp');
 const content = document.getElementById('content');
-const APIkey = '2541334ceee047e0ef4f56ad571b0505';
+const APIkey = '&appid=2541334ceee047e0ef4f56ad571b0505&units=imperial';
 const baseUrl ='https://api.openweathermap.org/data/2.5/weather?zip=';
 const d = new Date();
-const newDate = d.getMonth()+'/'+ d.getDate()+'/'+ d.getFullYear();
+const newDate = (d.getMonth()+1)+'/'+ d.getDate()+'/'+ d.getFullYear();
 
 //EventListener for the generate button to take input
 generate.addEventListener('click', getData);
@@ -66,7 +66,7 @@ const fetchData = async ( url = '' , data = {})=>{
 
 //setuo to fecth the data
 function getData(){
-  const fullUrl = baseUrl + zip.value + '&appid=' + APIkey;
+  const fullUrl = baseUrl + zip.value + APIkey;
   getWeatherData(fullUrl).then((data)=>postData('http://localhost:8000/data',data)).then(fetchData('http://localhost:8000/all'));
 }
 
@@ -74,7 +74,7 @@ function getData(){
 function updateUI(data){
   console.log(data);
   name.innerHTML = `Location: ${data.name},${data.sys.country}`;
-  temp.innerHTML = `Temperature: ${(data.main.temp - 273.15).toFixed(2)}°C`;
+  temp.innerHTML = `Temperature: ${((data.main.temp-32) * (5/9)).toFixed(2)}°C`;
   date.innerHTML = `Date: ${newDate}`;
   content.innerText = `Extra Details:  Weather: ${data.weather[0].description}
   Humidity: ${data.main.humidity}%
